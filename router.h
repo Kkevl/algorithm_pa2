@@ -11,8 +11,8 @@ class router
 private:
     int gridsize,capacity,numnet,loadbuffer;
     // vector<int> posx1,posy1,posx2,posy2;
-    vector<int> positions[4]; //(x1,y1)(x2,y2)
-public:    
+public:   
+    vector<int> positions[4]; //(x1,y1)(x2,y2) 
     router();
     void getroutdata(string filename);
     void printresult();
@@ -67,8 +67,24 @@ inline void router::printresult(){
 // need to pass gridsize,capacity,positions
 inline void router::sssp(){   
     grapher dgraph(gridsize,capacity,numnet);
+    // remember that position will be inverted!
     dgraph.settile(positions);
-    dgraph.printtilemap();
+    for (int i = 0; i < numnet; i++){
+        dgraph.traverse(i,positions[0][i],positions[1][i],positions[2][i],positions[3][i]);
+    }
+    // dgraph.printtilemap();
     dgraph.printedgemap();
-
+    cout<<"======================\n";
+    dgraph.maxflow();
+    cout<<"maxx = "<<dgraph.maxflowx<<"\nmaxy = "<<dgraph.maxflowy<<endl;
+    cout<<"=============================\n";
+    for (int i = 0; i < numnet; i++)
+    {
+        cout<<i<<" "<<dgraph.ansroutenum[i]<<endl;
+        for (int j = 0; j < dgraph.ansroutenum[i]*2; j+=2)
+        {
+            cout<<dgraph.ansvector[i][j]<<" "<<dgraph.ansvector[i][j+1]<<" "
+                <<dgraph.ansvector[i][j+2]<<" "<<dgraph.ansvector[i][j+3]<<endl;
+        }        
+    }
 }
