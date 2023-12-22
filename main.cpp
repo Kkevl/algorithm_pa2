@@ -4,11 +4,12 @@ using namespace std;
 
 int main(){
     router routing;
-    string filepath = "../pa2_resource/5x5.in";
+    string filepath = "../pa2_resource/4x4.in";
     routing.getroutdata(filepath);
     cout<<"==================\n";
     routing.printresult();
-
+    cout<<"==================\n";
+    routing.sssp();
 
 
     return 0;

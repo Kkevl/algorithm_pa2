@@ -9,10 +9,9 @@ using namespace std;
 class router
 {
 private:
-    string strbuffer;
     int gridsize,capacity,numnet,loadbuffer;
-    vector<int> posx1,posx2,posy1,posy2;
-    vector<int> positions[4];
+    // vector<int> posx1,posy1,posx2,posy2;
+    vector<int> positions[4]; //(x1,y1)(x2,y2)
 public:    
     router();
     void getroutdata(string filename);
@@ -29,12 +28,12 @@ inline void router::getroutdata(string filename){
     ifstream handler;
     handler.open(filename);
     if(handler.is_open()){        
+        string strbuffer;
         handler>>strbuffer>>gridsize>>gridsize;
         handler>>strbuffer>>capacity;
         handler>>strbuffer>>strbuffer>>numnet; //fin>>"num" "net" and netnumber
         vector<int> buffer(numnet);
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++){
             positions[i] = buffer;
         }
         // posx1 = buffer;
@@ -60,7 +59,6 @@ inline void router::printresult(){
     cout<<"\ncapacity "<<capacity;
     cout<<"\nnumnet "<<numnet<<endl;
     for (int i = 0; i < numnet; i++){
-        // cout<<i<<" "<<posx1[i]<<" "<<posy1[i]<<" "<<posx2[i]<<" "<<posy2[i]<<endl;
         cout<<i<<" "<<positions[0][i]<<" "<<positions[1][i]<<" "<<positions[2][i]<<" "<<positions[3][i]<<endl;
     }    
     return;
@@ -68,7 +66,9 @@ inline void router::printresult(){
 
 // need to pass gridsize,capacity,positions
 inline void router::sssp(){   
-    grapher dgraph(gridsize,capacity);
-
+    grapher dgraph(gridsize,capacity,numnet);
+    dgraph.settile(positions);
+    dgraph.printtilemap();
+    dgraph.printedgemap();
 
 }
