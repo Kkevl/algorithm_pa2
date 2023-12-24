@@ -9,20 +9,28 @@ using namespace std;
 class grapher
 {
 private:
-    int gridsize,capacity,edgecost = 1,
-            numnet,mode;
+    int gridsize,
+        capacity,
+        edgecost = 1,
+        numnet,
+        mode;
 public:
     grapher(int,int,int );
-    vector<vector<int>> tilemap,tilemapcolor,ansvector,edgemapx,edgemapy;
+    vector<vector<int>> tilemap ,tilemapcolor ,lastposition ,
+                        edgemapx ,edgemapy ,
+                        ansvector;
     vector<int> ansroutenum;
     int maxflowx = 0,maxflowy = 0, thisx,thisy;
     // create a map that represent every tile, each should refresh every time dijkstra
     void printtilemap();
     void printedgemap();// create " " to represent each edge between each tile
-    void settile(vector<int> pointers[]);
-    void traverse(int, int, int, int, int);
+    void settile(int stx ,int sty);
+    void traversel(int, int, int, int, int);
     void maxflow();
-
+    void dijkstra(int ,int ,int , int );
+    void extractmin(int *,int* , vector<int>&);
+    void relax(int, int ,int ,int);
+    //refresh weight will be done by founding path
 };
 
 inline grapher::grapher(int grid,int cap,int net){
@@ -33,16 +41,18 @@ inline grapher::grapher(int grid,int cap,int net){
     numnet = net;
     ansvector = netbuffer;
     tilemap = buffer;
+    tilemapcolor = buffer;
+    lastposition = buffer;
     edgemapx = buffer;
     edgemapy = buffer;
     for (int i = 0; i < grid; i++){
         for (int j = 0; j < grid-1; j++){
-            edgemapx[i][j] = 0;//edgecost;
+            edgemapx[i][j] = edgecost;
         }     
     }
     for (int i = 0; i < grid-1; i++){
         for (int j = 0; j < grid; j++){
-            edgemapy[i][j] = 0;//edgecost;
+            edgemapy[i][j] = edgecost;
         }        
     }    
 }
@@ -74,15 +84,18 @@ inline void grapher::printedgemap(){
     }
 }
 
-inline void grapher::settile( vector< int > pointers[]){
-    for (int i = 0; i < numnet; i++){
-        tilemap[ pointers[1][i] ][ pointers[0][i] ] += 1;
-        tilemap[ pointers[3][i] ][ pointers[2][i] ] += 1;
-    }    
+//will use to reset all key for dijkstra
+inline void grapher::settile(int stx, int sty){
+    for (int i = 0; i < gridsize; i++){
+        for (int j = 0; j < gridsize; j++){
+            tilemap[i][j] = INT16_MAX;
+        }        
+    }
+    tilemap[sty][stx] = 0;
 }
 
 // since the position of list is invertrd, the poiot is reversed
-inline void grapher::traverse( int netid ,int startx,int starty,int endx, int endy){
+inline void grapher::traversel( int netid ,int startx,int starty,int endx, int endy){
     if(startx<=endx){
         if (starty<endy) mode = 0; // at right top or straight up
         else mode = 1; // at right down  or straight down
@@ -169,6 +182,7 @@ inline void grapher::traverse( int netid ,int startx,int starty,int endx, int en
     ansroutenum.push_back(r);
 }
 
+//count the overflow
 inline void grapher::maxflow(){
     for(auto& row:edgemapx){
         auto it = max_element(row.begin(), row.end());
@@ -178,4 +192,58 @@ inline void grapher::maxflow(){
         auto it = max_element(row.begin(), row.end());
         if( *it > maxflowy ) maxflowy = *it;
     }
+}
+
+inline void grapher::dijkstra(int startx,int starty,int endx, int endy){
+    //initialize the tile weight
+    settile(startx,starty);
+    vector<int> Q;
+    // set Q's bound
+    for (int i = 0; i < gridsize; i++){
+        for (int j = 0; j < gridsize; j++){
+            Q.push_back(gridsize*i+j);
+        }        
+    }    
+    //use gridsize*y + x to encode the position
+    thisx = startx;
+    thisy = starty;
+    while (!Q.empty()){
+        //relax all edge of this point
+        extractmin( &thisx , &thisy , Q );
+        tilemapcolor[thisy][thisx] = 1; // means black
+        
+        //relax neighbors right, up ,left ,down
+        
+
+        if(thisx<gridsize-1) relax(thisx+1,thisy,edgemapx[thisy][thisx] , 1);// check not out of right bound
+        if(thisy<gridsize-1) relax(thisx,thisy+1,edgemapy[thisy][thisx] , 2);// check not out of up bound
+        if(thisx>0) relax(thisx-1,thisy,edgemapx[thisy][thisx-1] , 3 );// check not out of left bound
+        if(thisy>0) relax(thisx,thisy-1,edgemapy[thisy-1][thisx] , 4 );// check not out of down bound
+
+    }
+
+}
+//Q = 0~400
+inline void grapher::extractmin(int *thex, int *they , vector<int> &sets){
+    int temp = 0;
+    for (int i = 0; i < sets.size(); i++){
+        if ( tilemap[ sets[temp]/gridsize ][ sets[temp]%gridsize ] > tilemap [ sets[i] / gridsize ] [ sets[i] % gridsize ] ){
+            // if the tile number of [seti] is lesser than change target to it
+            temp = i;
+        }        
+    }
+    *they = sets[temp]/gridsize;
+    *thex = sets[temp]%gridsize;
+    sets.erase( sets.begin() + temp );
+    return;
+}
+
+inline void grapher::relax(int posx, int posy ,int weight, int  direction){  // recieve the position of need to change
+    if (tilemapcolor[posy][posx] != 0){
+        return;
+    }    
+    else if ( tilemap[ posy ] [ posx ]  >( tilemap[ thisy ][ thisx ] + weight) ){
+        tilemap[ posy ] [ posx ] = ( tilemap[ thisy ][ thisx ] + weight);
+        lastposition[ posy ] [ posx ] = direction;
+    }    
 }
