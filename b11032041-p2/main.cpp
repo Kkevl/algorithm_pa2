@@ -1,14 +1,6 @@
 #include<iostream>
 #include"router.h"
 using namespace std;
-
-// int main(){
-//     router routing;
-//     string filepath = "pa2_resource/20x20.in";
-//     routing.getroutdata(filepath);
-//     routing.sssp();
-//     return 0;
-// }
 int main(int argc, char **argv)
 {	
 	if(argc != 3)
