@@ -27,10 +27,11 @@ public:
     void settile(int stx ,int sty);
     void traversel(int, int, int, int, int);
     void maxflow();
-    void dijkstra(int ,int ,int , int );
+    void dijkstra(int ,int);
     void extractmin(int *,int* , vector<int>&);
     void relax(int, int ,int ,int);
     //refresh weight will be done by founding path
+    void refindpath(int, int ,int ,int , int );
 };
 
 inline grapher::grapher(int grid,int cap,int net){
@@ -92,6 +93,12 @@ inline void grapher::settile(int stx, int sty){
         }        
     }
     tilemap[sty][stx] = 0;
+    //color reset
+    for (int i = 0; i < gridsize; i++){
+        for (int j = 0; j < gridsize; j++){
+            tilemapcolor[i][j] = 0;
+        }        
+    }
 }
 
 // since the position of list is invertrd, the poiot is reversed
@@ -194,9 +201,9 @@ inline void grapher::maxflow(){
     }
 }
 
-inline void grapher::dijkstra(int startx,int starty,int endx, int endy){
-    //initialize the tile weight
-    settile(startx,starty);
+inline void grapher::dijkstra(int startx,int starty){
+    //initialize the tile weight&color&(lastposition)
+    settile(startx,starty); 
     vector<int> Q;
     // set Q's bound
     for (int i = 0; i < gridsize; i++){
@@ -211,15 +218,11 @@ inline void grapher::dijkstra(int startx,int starty,int endx, int endy){
         //relax all edge of this point
         extractmin( &thisx , &thisy , Q );
         tilemapcolor[thisy][thisx] = 1; // means black
-        
         //relax neighbors right, up ,left ,down
-        
-
         if(thisx<gridsize-1) relax(thisx+1,thisy,edgemapx[thisy][thisx] , 1);// check not out of right bound
         if(thisy<gridsize-1) relax(thisx,thisy+1,edgemapy[thisy][thisx] , 2);// check not out of up bound
         if(thisx>0) relax(thisx-1,thisy,edgemapx[thisy][thisx-1] , 3 );// check not out of left bound
         if(thisy>0) relax(thisx,thisy-1,edgemapy[thisy-1][thisx] , 4 );// check not out of down bound
-
     }
 
 }
@@ -246,4 +249,43 @@ inline void grapher::relax(int posx, int posy ,int weight, int  direction){  // 
         tilemap[ posy ] [ posx ] = ( tilemap[ thisy ][ thisx ] + weight);
         lastposition[ posy ] [ posx ] = direction;
     }    
+}
+
+inline void grapher::refindpath(int netid,int startx,int starty, int endx, int endy){
+    //todo: refind the best path and pass to ansvector also refresh the edge
+    thisx = endx;
+    thisy = endy;
+    int direction,r = 0;
+
+    while ( (thisx != startx) || (thisy != starty) ){
+        ansvector[netid].push_back(thisx);
+        ansvector[netid].push_back(thisy);
+        direction = lastposition[thisy][thisx];
+        r+=1; //steps counter
+        switch (direction)
+        {
+        case 1: //move left
+            edgemapx[thisy][thisx-1] += edgecost;
+            thisx -= 1;
+            break;
+        case 2: //move down
+            edgemapy[thisy-1][thisx] += edgecost;
+            thisy -= 1;
+            break;
+        case 3: //move right
+            edgemapx[thisy][thisx] += edgecost;
+            thisx += 1;
+            break;
+        case 4: // move up
+            edgemapy[thisy][thisx] += edgecost;
+            thisy += 1;
+            break;
+        default:
+            break;
+        }
+    }
+    ansvector[netid].push_back(thisx);
+    ansvector[netid].push_back(thisy);
+    ansroutenum.push_back(r);    
+    return;
 }

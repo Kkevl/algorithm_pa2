@@ -11,11 +11,13 @@ class router
 private:
     int gridsize,capacity,numnet,loadbuffer;
 public:   
-    vector<int> positions[4]; //(x1,y1)(x2,y2) 
+    vector<int> positions[4],routingnum; //(x1,y1)(x2,y2) 
+    vector<vector<int>> anservector;
     router();
     void getroutdata(string filename);
     void printresult();
     void sssp();
+    int getnumnet(){ return numnet;}
 };
 inline router::router(){
     gridsize = 0;
@@ -63,23 +65,41 @@ inline void router::sssp(){
     grapher dgraph(gridsize,capacity,numnet);
     // remember that position will be inverted!
 
-    for (int i = 0; i < 1; i++){
-    //     dgraph.traversel(i,positions[0][i],positions[1][i],positions[2][i],positions[3][i]);
-        dgraph.dijkstra(positions[0][i],positions[1][i],positions[2][i],positions[3][i]);
+    for (int i = 0; i < numnet; i++){    
+        dgraph.dijkstra(positions[0][i],positions[1][i]);//,positions[2][i],positions[3][i]);
+        // dgraph.printtilemap();
+        dgraph.refindpath(i,positions[0][i],positions[1][i], positions[2][i],positions[3][i]);
+    // cout<<"=============================\n";
+    // }
+    //
+    // cout<<"=============================\n";
+    // for (int i = 0; i < numnet; i++){
+    // cout<<i<<" "<<dgraph.ansroutenum[i]<<endl;
+    // for (int j = dgraph.ansroutenum[i]*2+1 ; j > 1; j-=2){
+    //     cout<<dgraph.ansvector[i][j-1]<<" "<<dgraph.ansvector[i][j]<<" "
+    //         <<dgraph.ansvector[i][j-3]<<" "<<dgraph.ansvector[i][j-2]<<endl;
+    // }        
     }
-    
-    dgraph.printtilemap();
-
-
-    
-    // dgraph.printedgemap(); 
+    anservector = dgraph.ansvector;
+    routingnum = dgraph.ansroutenum;
+    // cout<<"=============================\n"; 
+    // dgraph.printedgemap();
+    cout<<"=============================\n";
+    dgraph.maxflow();
+    cout<<"capacity = "<<capacity<<endl;
+    cout<<"maxx = "<<dgraph.maxflowx<<"\n";
+    cout<<"maxy = "<<dgraph.maxflowy<<"\n";
     cout<<"=============================\n";
     //print the route of each net
-    /*for (int i = 0; i < numnet; i++){
-        cout<<i<<" "<<dgraph.ansroutenum[i]<<endl;
-        for (int j = 0; j < dgraph.ansroutenum[i]*2; j+=2){
-            cout<<dgraph.ansvector[i][j]<<" "<<dgraph.ansvector[i][j+1]<<" "
-                <<dgraph.ansvector[i][j+2]<<" "<<dgraph.ansvector[i][j+3]<<endl;
-        }        
+    /*  
+        for (int i = 0; i < numnet; i++){
+            dgraph.traversel(i,positions[0][i],positions[1][i],positions[2][i],positions[3][i]);
+        }
+        for (int i = 0; i < numnet; i++){
+            cout<<i<<" "<<dgraph.ansroutenum[i]<<endl;
+            for (int j = 0; j < dgraph.ansroutenum[i]*2; j+=2){
+                cout<<dgraph.ansvector[i][j]<<" "<<dgraph.ansvector[i][j+1]<<" "
+                    <<dgraph.ansvector[i][j+2]<<" "<<dgraph.ansvector[i][j+3]<<endl;
+            }        
     }*/
 }
