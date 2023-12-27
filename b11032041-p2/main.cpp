@@ -1,10 +1,8 @@
 #include<iostream>
 #include"router.h"
 using namespace std;
-int main(int argc, char **argv)
-{	
-	if(argc != 3)
-    {
+int main(int argc, char **argv){	
+	if(argc != 3){
         cout << "Usage: ./[exe] [input file] [output file]" << endl;
         exit(1);
     }
@@ -12,7 +10,7 @@ int main(int argc, char **argv)
     router Rout;
     Rout.getroutdata(argv[1]);
     Rout.sssp();
-    // open the output file
+    // openy the output file
     fstream fout;
     fout.open(argv[2],fstream::out);
     if(!fout.is_open()){

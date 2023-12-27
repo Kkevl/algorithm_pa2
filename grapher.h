@@ -2,6 +2,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<cmath>
 #include<vector>
 #include<algorithm>
 #include"router.h"
@@ -27,9 +28,9 @@ public:
     void settile(int stx ,int sty);
     void traversel(int, int, int, int, int);
     void maxflow();
-    void dijkstra(int ,int);
+    void dijkstra(int ,int ,int ,int);
     void extractmin(int *,int* , vector<int>&);
-    void relax(int, int ,int ,int);
+    void relax(int, int , int , int);
     //refresh weight will be done by founding path
     void refindpath(int, int ,int ,int , int );
 };
@@ -191,17 +192,21 @@ inline void grapher::traversel( int netid ,int startx,int starty,int endx, int e
 
 //count the overflow
 inline void grapher::maxflow(){
+    int over = 0;
     for(auto& row:edgemapx){
         auto it = max_element(row.begin(), row.end());
         if( *it > maxflowx ) maxflowx = *it;
+        if( *it > capacity+1 ) over++;
     }
     for(auto& row:edgemapy){
         auto it = max_element(row.begin(), row.end());
         if( *it > maxflowy ) maxflowy = *it;
+        if( *it > capacity+1 ) over++;
     }
+    cout<<"over = "<<over<<endl;
 }
 
-inline void grapher::dijkstra(int startx,int starty){
+inline void grapher::dijkstra(int startx,int starty ,int endx ,int endy){
     //initialize the tile weight&color&(lastposition)
     settile(startx,starty); 
     vector<int> Q;
@@ -217,16 +222,19 @@ inline void grapher::dijkstra(int startx,int starty){
     while (!Q.empty()){
         //relax all edge of this point
         extractmin( &thisx , &thisy , Q );
+        
+        if ((thisx == endx)&(thisy == endy)) break;
+
         tilemapcolor[thisy][thisx] = 1; // means black
         //relax neighbors right, up ,left ,down
-        if(thisx<gridsize-1) relax(thisx+1,thisy,edgemapx[thisy][thisx] , 1);// check not out of right bound
-        if(thisy<gridsize-1) relax(thisx,thisy+1,edgemapy[thisy][thisx] , 2);// check not out of up bound
-        if(thisx>0) relax(thisx-1,thisy,edgemapx[thisy][thisx-1] , 3 );// check not out of left bound
-        if(thisy>0) relax(thisx,thisy-1,edgemapy[thisy-1][thisx] , 4 );// check not out of down bound
+        if(thisx<gridsize-1) relax(thisx+1,thisy, edgemapx[thisy][thisx] , 1);// check not out of right bound
+        if(thisy<gridsize-1) relax(thisx,thisy+1, edgemapy[thisy][thisx] , 2);// check not out of up bound
+        if(thisx>0) relax(thisx-1,thisy,  edgemapx[thisy][thisx-1] ,  3 );// check not out of left bound
+        if(thisy>0) relax(thisx,thisy-1, edgemapy[thisy-1][thisx] , 4 );// check not out of down bound
     }
 
 }
-//Q = 0~400
+
 inline void grapher::extractmin(int *thex, int *they , vector<int> &sets){
     int temp = 0;
     for (int i = 0; i < sets.size(); i++){
@@ -241,7 +249,7 @@ inline void grapher::extractmin(int *thex, int *they , vector<int> &sets){
     return;
 }
 
-inline void grapher::relax(int posx, int posy ,int weight, int  direction){  // recieve the position of need to change
+inline void grapher::relax(int posx, int posy , int weight, int  direction){  // recieve the position of need to change
     if (tilemapcolor[posy][posx] != 0){
         return;
     }    

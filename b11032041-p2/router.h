@@ -54,8 +54,8 @@ inline void router::sssp(){
     grapher dgraph(gridsize,capacity,numnet);
     // remember that position will be inverted!
     for (int i = 0; i < numnet; i++){    
-        dgraph.dijkstra(positions[0][i],positions[1][i]);
-        dgraph.refindpath(i,positions[0][i],positions[1][i], positions[2][i],positions[3][i]);      
+        dgraph.dijkstra(positions[0][i],positions[1][i], positions[2][i],positions[3][i]);
+        dgraph.refindpath(i,positions[0][i],positions[1][i], positions[2][i],positions[3][i]);
     }
     anservector = dgraph.ansvector;
     routingnum = dgraph.ansroutenum;

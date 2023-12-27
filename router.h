@@ -66,29 +66,28 @@ inline void router::sssp(){
     // remember that position will be inverted!
 
     for (int i = 0; i < numnet; i++){    
-        dgraph.dijkstra(positions[0][i],positions[1][i]);//,positions[2][i],positions[3][i]);
+        dgraph.dijkstra(positions[0][i],positions[1][i],positions[2][i],positions[3][i]);
         // dgraph.printtilemap();
         dgraph.refindpath(i,positions[0][i],positions[1][i], positions[2][i],positions[3][i]);
     // cout<<"=============================\n";
     // }
-    //
-    // cout<<"=============================\n";
+        // cout<<"=============================\n";
     // for (int i = 0; i < numnet; i++){
-    // cout<<i<<" "<<dgraph.ansroutenum[i]<<endl;
-    // for (int j = dgraph.ansroutenum[i]*2+1 ; j > 1; j-=2){
-    //     cout<<dgraph.ansvector[i][j-1]<<" "<<dgraph.ansvector[i][j]<<" "
-    //         <<dgraph.ansvector[i][j-3]<<" "<<dgraph.ansvector[i][j-2]<<endl;
-    // }        
+        // cout<<i<<" "<<dgraph.ansroutenum[i]<<endl;
+        // for (int j = dgraph.ansroutenum[i]*2+1 ; j > 1; j-=2){
+        //     cout<<dgraph.ansvector[i][j-1]<<" "<<dgraph.ansvector[i][j]<<" "
+        //         <<dgraph.ansvector[i][j-3]<<" "<<dgraph.ansvector[i][j-2]<<endl;
+        // }        
     }
     anservector = dgraph.ansvector;
     routingnum = dgraph.ansroutenum;
     // cout<<"=============================\n"; 
     // dgraph.printedgemap();
     cout<<"=============================\n";
-    dgraph.maxflow();
     cout<<"capacity = "<<capacity<<endl;
-    cout<<"maxx = "<<dgraph.maxflowx<<"\n";
-    cout<<"maxy = "<<dgraph.maxflowy<<"\n";
+    dgraph.maxflow();
+    cout<<"maxx = "<<dgraph.maxflowx-1<<"\n";
+    cout<<"maxy = "<<dgraph.maxflowy-1<<"\n";
     cout<<"=============================\n";
     //print the route of each net
     /*  

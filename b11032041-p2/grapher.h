@@ -23,7 +23,7 @@ public:
     int maxflowx = 0,maxflowy = 0, thisx,thisy;
     // create a map that represent every tile, each should refresh every time dijkstra
     void settile(int stx ,int sty);
-    void dijkstra(int ,int);
+    void dijkstra(int ,int,int ,int);
     void extractmin(int *,int* , vector<int>&);
     void relax(int, int ,int ,int);
     //refresh weight will be done by founding path
@@ -70,7 +70,7 @@ inline void grapher::settile(int stx, int sty){
     }
 }
 
-inline void grapher::dijkstra(int startx,int starty){
+inline void grapher::dijkstra(int startx,int starty,int endx,int endy){
     //initialize the tile weight&color&(lastposition)
     settile(startx,starty); 
     vector<int> Q;
@@ -86,6 +86,7 @@ inline void grapher::dijkstra(int startx,int starty){
     while (!Q.empty()){
         //relax all edge of this point
         extractmin( &thisx , &thisy , Q );
+        if ((thisx == endx)&(thisy == endy)) break;
         tilemapcolor[thisy][thisx] = 1; // means black
         //relax neighbors right, up ,left ,down
         if(thisx<gridsize-1) relax(thisx+1,thisy,edgemapx[thisy][thisx] , 1);// check not out of right bound
